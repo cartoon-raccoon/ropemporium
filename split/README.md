@@ -45,10 +45,10 @@ We need to be able to control two main things:
 
 And we do this by overwriting the stack.
 
-We can do this with return-oriented programming. Essentially, we look for gadgets - small pieces of code that usually end with a `ret` instruction. This takes advantage of how `ret` works: It pops off the stack and into `rip`, and jumps to it. Thus, we can exploit this like so:
+We can do this with [return-oriented programming](https://en.wikipedia.org/wiki/Return-oriented_programming). Essentially, we look for gadgets - small pieces of code that usually end with a `ret` instruction. This takes advantage of how `ret` works: It pops off the stack and into `rip`, and jumps to it. This allows us to chain little bits of code together to run arbitrary code, setting up for us to pop our shell. It works like this:
 
-1. We overwrite the saved `rip` with the address of a gadget.
-2. When `ret` is executed, we pop that off the stack and jump to it, executing whatever code before `ret`-ing again.
+1. We overwrite the saved `rip` with the address of a gadget by taking advantage of a buffer overflow.
+2. When `ret` in the gadget is executed, we pop that off the stack and jump to it, executing whatever code before `ret`-ing again.
 3. If we fed in the address of another gadget before that, we'll pop _that_ off, and execute _that_ gadget, and so on and so forth.
 4. Rinse and repeat until profit.
 
@@ -83,7 +83,7 @@ We can do this with a gadget. Bet you were wondering when we were gonna circle b
 
 Since we control the stack, we have to pass in this address on the stack and somehow get it into `rdi`. Luckily, there's an instruction that can do this, called `pop`. How cute.
 
-So, we're looking for a gadget that executes `pop rdi, ret`. This pops the top of the stack into `rdi`, then returns. Luckily, Cutter has this built right in.
+So, we're looking for a gadget that executes `pop rdi` and then `ret`. This pops the top of the stack into `rdi`, then returns. Luckily, Cutter has this built right in.
 
 ```text
 [0x00400742]> /a pop rdi, ret
@@ -189,4 +189,4 @@ $ python exploit.py
 b'Thank you!\nROPE{a_placeholder_32byte_flag!}\n'
 ```
 
-¯\_(ツ)_/¯
+¯\\\_(ツ)_/¯
