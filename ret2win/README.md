@@ -51,16 +51,20 @@ Great. Now that we know where to jump to, let's figure out how to get there.
 So, at the call to `read()`, the stack looks like this:
 
 ```text
+Each line represents 8 bytes.
 ------------------------
 
-[buf (32 bytes)]      <- rsp
-[saved rsp (8 bytes)] <- rbp
-[saved rip (8 bytes)]
+[buf_3    ] <- rsp ¯¯| (read() starts writing here and goes down)
+[buf_2    ]          |
+[buf_1    ]          |-Total 32 bytes
+[buf_0    ] <- rbp __|
+[saved rbp]
+[saved rip]
 
 ------------------------
 ```
 
-What we want to do is to overflow `buf` and write into the saved `rip` memory region the address of `ret2win`.
+What we want to do is to overflow `buf` and write into the saved `rip` memory region the address of `ret2win`, which we can easily find with any disassembler.
 
 We can just write a simple exploit script with `pwntools` like so:
 
