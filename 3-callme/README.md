@@ -66,9 +66,9 @@ mov     edi, 1 ; int status
 call    exit ; sym.imp.exit ; void exit(int status)
 ```
 
-Not only are the functions called in the wrong order, they are also called with the wrong arguments. In fact, we can't change these arguments, because we don't control `edx`, `esi`, or `edi`. We could find a gadget somewhere and `ret` directly to the calls after popping the required values into our registers, but that would we a long and complicated ROP chain.
+Not only are the functions called in the wrong order, they are also called with the wrong arguments. In fact, we can't change these arguments, because we don't control `edx`, `esi`, or `edi`. We could find a gadget somewhere and `ret` directly to the calls after popping the required values into our registers, but that would be a long and complicated ROP chain.
 
-As it turns out, this function is only here to make sure that the functions get imported by the linker and their entries get placed in the PLT.
+As it turns out, this function is only here to make sure that the functions get imported by the linker at compile time and their entries get placed in the PLT.
 
 So, instead of jumping to this, we could just jump to their entries in the PLT.
 
@@ -168,4 +168,4 @@ callme_two() called correctly
 ROPE{a_placeholder_32byte_flag!}
 ```
 
-pwned.
+Boom.
