@@ -126,16 +126,16 @@ What gives?
 
 Turns out, because x86_64 is a multibyte instruction set, instructions don't have to be aligned. We can just jump right into the middle of an instruction, and the CPU, blindly assuming it's at the start of an instruction, will happily interpret it as a completely different instruction.
 
-When we assemble this gadget into machine code:
+We can always do a sanity check to make sure we're not misinterpreting this. When we assemble this gadget into machine code:
 
 ```python
 >>> from pwn import *
 >>> context.arch = "amd64"
 >>> asm("pop rdi\nret")
-b'_\xc3' # the byte representation of '_' is 0x5f.
+b'_\xc3' # the byte representation of '_' is 0x5f, so this is 0x5f 0xc3.
 ```
 
-Looking at `0x4007c3`, we see `0x5f, 0xc3`. Exactly what we need.
+Looking at `0x4007c3`, we see `0x5f 0xc3`. Exactly what we need.
 
 Cool. We can do our exploit now.
 

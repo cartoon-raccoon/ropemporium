@@ -4,7 +4,7 @@ A simple exploit involving overflowing a buffer and overwriting the saved `rip` 
 
 There are two main functions in this program, `main` and `pwnme`. Obviously we need to exploit the latter.
 
-Looking at the source code of `pwnme`:
+Looking at the decompiled code of `pwnme` in Cutter:
 
 ```c
 void pwnme(void)
@@ -46,9 +46,9 @@ void ret2win(void)
 
 ...oh. Well, our life just got a whole lot easier.
 
-Great. Now that we know _where_ to jump to, let's figure out _how_ to get there.
+Great. Now that we know where to jump to, let's figure out how to get there.
 
-So, as mentioned earler, at the call to `read()`, the stack looks like this:
+So, at the call to `read()`, the stack looks like this:
 
 ```text
 ------------------------
