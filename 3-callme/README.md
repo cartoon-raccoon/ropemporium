@@ -8,7 +8,7 @@ If you haven't already, read up on how it works. You can do so [here](https://ro
 
 In this challenge, the author makes life easy for us and removes the need for any reversing by telling us the objective:
 
-> You must call the callme_one(), callme_two() and callme_three() functions in that order, each with the arguments 0xdeadbeef, 0xcafebabe, 0xd00df00d e.g. callme_one(0xdeadbeef, 0xcafebabe, 0xd00df00d) to print the flag. For the x86_64 binary double up those values, e.g. callme_one(0xdeadbeefdeadbeef, 0xcafebabecafebabe, 0xd00df00dd00df00d)
+> You must call the `callme_one()`, `callme_two()` and `callme_three()` functions in that order, each with the arguments `0xdeadbeef`, `0xcafebabe`, `0xd00df00d` e.g. `callme_one(0xdeadbeef, 0xcafebabe, 0xd00df00d)` to print the flag. For the x86_64 binary double up those values, e.g. `callme_one(0xdeadbeefdeadbeef, 0xcafebabecafebabe, 0xd00df00dd00df00d)`
 
 This means we need to control `rdi`, `rsi`, and `rdx`, as parameters to functions are passed in these registers.
 
@@ -72,7 +72,7 @@ As it turns out, this function is only here to make sure that the functions get 
 
 So, instead of jumping to this, we could just jump to their entries in the PLT.
 
-Now, all we need to do is find a gadget that can pop `rdi`, `rsi`, and `rdx`. The order doesn't matter, as we can craft the buffer overflow to suit the gadget. We can use `ROPgadget` to find such a gadget like so:
+Now, all we need to do is find some gadgets that can pop `rdi`, `rsi`, and `rdx`. The order doesn't matter, as we can craft the buffer overflow to suit the gadget. We can use `ROPgadget` to find such gadgets like so:
 
 ```text
 $ ROPgadget --binary ./callme | grep rdi
@@ -90,7 +90,7 @@ Look at that second last result.
 0x000000000040093c : pop rdi ; pop rsi ; pop rdx ; ret
 ```
 
-Three birds with one stone. Perfect.
+Great. Guess we only need one gadget then.
 
 With this, we can construct our exploit:
 
