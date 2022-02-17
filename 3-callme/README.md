@@ -76,6 +76,7 @@ Now, all we need to do is find some gadgets that can pop `rdi`, `rsi`, and `rdx`
 
 ```text
 $ ROPgadget --binary ./callme | grep rdi
+
 0x0000000000400a3d : add byte ptr [rax], al ; add byte ptr [rbp + rdi*8 - 1], ch ; call qword ptr [rax + 0x23000000]
 0x0000000000400a3f : add byte ptr [rbp + rdi*8 - 1], ch ; call qword ptr [rax + 0x23000000]
 0x0000000000400a3c : add byte ptr fs:[rax], al ; add byte ptr [rbp + rdi*8 - 1], ch ; call qword ptr [rax + 0x23000000]
