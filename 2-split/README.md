@@ -1,5 +1,7 @@
 # split
 
+_useful isn't that useful here._
+
 This one is slightly more complicated, but not by much. Here's where we really get into using gadgets to `ret` our way to the finish line.
 
 Opening the file in `rizin` (I use Cutter because I'm a worthless asshole too stupid to use the command line) we see three things.
@@ -81,7 +83,7 @@ The [AMD64 System V calling convention](https://wiki.osdev.org/System_V_ABI#x86-
 
 We can do this with a gadget. Bet you were wondering when we were gonna circle back to this.
 
-Since we control the stack, we have to pass in this address on the stack and somehow get it into `rdi`. Luckily, there's an instruction that can do this, called `pop`. How cute.
+Since we control the stack, we have to pass in this address on the stack and somehow get it into `rdi`. Of course, we can do this with the `pop` instruction.
 
 So, we're looking for a gadget that executes `pop rdi` and then `ret`. This pops the top of the stack into `rdi`, then returns. Luckily, Cutter has this built right in.
 
