@@ -44,9 +44,6 @@ elf = context.binary = ELF("./callme")
 # important: these are _addresses_, not the actual value.
 PUTS_PLT = elf.plt["puts"]
 PUTS_GOT = elf.got["puts"]
-
-# why do we need _start? You'll see in a bit.
-START = elf.symbols._start
 ```
 
 Using `pwntools`, we can resolve the addresses of the PLT and GOT entries of `puts`. We need both because we'll be calling `puts` to leak its own GOT entry, and we will be calling it from the PLT.
