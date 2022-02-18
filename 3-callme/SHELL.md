@@ -10,7 +10,7 @@ The challenge author actually alludes to this in the end notes of the challenge 
 
 > Once you've solved this challenge in the intended way you can revisit it and solve it using a different technique that can even get you a shell rather than just printing the flag. If you're out of ideas though, consider making it to the "pivot" challenge first so that you're equipped with the knowledge to take this alternate path.
 
-He's right, we can indeed get a shell with an alternative method, and it's called a `ret2libc` attack. Best part is, we're gonna do this with ASLR enabled, on x86-64, with just one gadget.
+He's right, we can indeed get a shell with an alternative method, and it's called a [`ret2libc`](https://en.wikipedia.org/wiki/Return-to-libc_attack) attack. Best part is, we're gonna do this with [ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization) enabled, on x86-64, with just one gadget.
 
 So, how does a `ret2libc` attack work? First, we need to talk about the Global Offset Table, or GOT.
 
@@ -31,7 +31,7 @@ sym.imp.exit
 
 Unfortunately for us, `system` is never called within this binary, so it has no corresponding entry in the PLT or GOT. However, we can leak the address of other functions and use that as a jumping point to eventually ROP our way there.
 
-Looking at our list of imported functions, we need a function to print characters to stdout. For this, we can use either `printf` or `puts`. `printf` is a variadic function, and requires a format string to print its information in a way we can parse. This would require writing a string to memory, and that's reserved for challenge 4. So, `puts` it is.
+Looking at our list of imported functions, we need a function to print characters to stdout. For this, we can use either `printf` or `puts`. `printf` is a variadic function, and requires a format string to print its information in a way we can parse. This would require writing a string to memory, and that's reserved for challenge 4. More importantly, a quick gadget search with `ropper` turned up no useful gadgets for writing to memory. So, `puts` it is.
 
 In order to leak the address of a function, we need it to be called first so its address can be resolved in the GOT. Fortunately, `puts` is already called in `pwnme`, so that's not an issue. With this, we can construct a basic script to leak the address of `puts`. This is our initial setup:
 
