@@ -339,7 +339,7 @@ And now all we need is some gadgets. Which, come to think of it, we already have
 
 Some observant readers may have noticed by now that we need to send two payloads, one to leak the address and one to pop our shell, but we only have one opportunity to read in data. How do we get around this? Well, with more ROP of course. We can simply put the address of the program's entry point (most Linux programs use `_start`) at the end of our first payload. This essentially restarts the entire program once the leak finishes without reloading the entire binary, thereby preserving the address of `libc`, and allows us to read in a second payload.
 
-So all that's left is to disable ASLR...
+So all that's left is to re-enable ASLR...
 
 ```text
 echo 1 | sudo tee /proc/sys/kernel/randomize_va_space
