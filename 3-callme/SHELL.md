@@ -169,7 +169,7 @@ $ python shell.py
 [*] Stopped process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme' (pid 39511)
 ```
 
-Nice, we have our `puts` address. Now we just need to get its offset. Amd for this, we will be examining our very own `libc`.
+Nice, we have our `puts` address. Now we just need to get its offset. And for this, we will be examining our very own `libc`.
 
 On my machine, the `libc` shared object being used is `/usr/lib/libc.so.6`. Let's load it up in Cutter (this will take a while), and once it's loaded, seek for the function with `sym.puts`:
 
