@@ -207,7 +207,7 @@ recved = conn.recvall()
 print(recved.decode("ascii"))
 ```
 
-It's important to note that the string `flag.txt` is exactly 8 ACSII characters long, hence it is only eight bytes and can fit perfectly into a 64-bit register. If the name was any longer, we would have to break the string into 8-byte segments and call the `mov` gadget two or more times, each time writing to an offset from `.data`.
+It's important to note that the string `flag.txt` is exactly 8 ASCII characters long, hence it is only eight bytes and can fit perfectly into a 64-bit register. If the name was any longer, we would have to break the string into 8-byte segments and call the `mov` gadget two or more times, each time writing to an offset from `.data`. I managed to write an updated exploit script that can do this, in [exploit.py](exploit.py). In this case, `.data` was only 16 bytes large in virtual address space, so I couldn't write too long of a file name, but for larger writable areas, you can do larger writes.
 
 With that out of the way, it's time for profit.
 
