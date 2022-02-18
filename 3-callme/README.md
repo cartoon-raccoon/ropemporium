@@ -169,4 +169,4 @@ callme_two() called correctly
 ROPE{a_placeholder_32byte_flag!}
 ```
 
-Boom.
+But wait, there's more. This isn't the only thing we can do. We can even use another technique on this executable to not just print a flag, but get a shell. See [here](SHELL.md) for details.
