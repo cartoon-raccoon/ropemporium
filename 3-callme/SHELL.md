@@ -14,7 +14,7 @@ He's right, we can indeed get a shell with an alternative method, and it's calle
 
 So, how does a `ret2libc` attack work? First, we need to talk about the Global Offset Table, or GOT.
 
-If you had read up on the PLT, you may have also heard of the GOT. This is where all offsets to objects and functions within the virtual address space are stored. After an imported function is called, the processor jumps to the PLT, where it finds another address to jump to. This address points to the GOT. When it is called for the first time, instead of calling the function, a special subroutine within `libc` known as `_dl_resolve` is called. This subroutine resolves the actual address of the function being called and populates its entry in the GOT with the address. Every subsequent call is then passed through the PLT and resolved through the GOT. tl;dr, the GOT contains the absolute address of a function in a shared library and if we can leak this, we can launch our attack.
+If you had read up on the PLT, you may have also heard of the GOT. This is where all offsets to objects and functions within the virtual address space are stored. After an imported function is called, the processor jumps to the PLT, where it finds another address to jump to. This address points to the GOT. When it is called for the first time, instead of calling the function, a special subroutine within `libc` known as `_dl_resolve` is called. This subroutine resolves the actual address of the function being called and populates its entry in the GOT with the address. Every subsequent call is then passed through the PLT and resolved through the GOT. tl;dr, the GOT contains the absolute address of a function in a shared library and if we can leak this, we can launch our attack. Interestingly enough, another way to attack this binary is through a `ret2dlresolve` attack, which I vaguely understand but am too dumb to carry out.
 
 Our attack will happen in two stages. First, we leak the address of a function from the GOT. Since we can find out the offset of this function and `system` within the `libc` binary, we can calculate the address of `libc` from this address and from there, the address of `system`. Next, we can then launch a second stage and ROP our way to calling `system` to give us a shell.
 
@@ -171,7 +171,7 @@ $ python shell.py
 
 Nice, we have our `puts` address. Now we just need to get its offset. And for this, we will be examining our very own `libc`.
 
-On my machine, the `libc` shared object being used is `/usr/lib/libc.so.6`. Let's load it up in Cutter (this will take a while), and once it's loaded, seek for the function with `sym.puts`:
+On my machine, the `libc` shared object being used is `/usr/lib/libc.so.6`. Let's load it up in Cutter (this will take a while), and once it's loaded, search for the function with `sym.puts`:
 
 ```text
 int puts (const char *s);
@@ -247,13 +247,16 @@ from pwn import *
 
 elf = context.binary = ELF("./callme")
 
+# addresses of our PLT and GOT entries for puts
 PUTS_PLT = elf.plt["puts"]
 PUTS_GOT = elf.got["puts"]
 
+# our gadget
 POP_RDI_GADGET = p64(0x4009a3)
 
 libc = elf.libc
 
+# retrieve of offsets of system and puts from libc
 LIBC_SYSTEM = libc.sym["system"]
 LIBC_PUTS = libc.sym["puts"]
 
@@ -325,16 +328,18 @@ $ strings -t x /usr/lib/libc.so.6 | grep /bin/sh
  1bd115 /bin/sh
 ```
 
-As luck would have it, we have a string with the exact content we need at offset 0x1bd115. We can again confirm this with Python:
+As luck would have it, we have a string with the exact content we need at offset `0x1bd115`. We can again confirm this with Python:
 
 ```python
 >>> hex(next(libc.search(b'/bin/sh')))
 '0x1bd115'
 ```
 
+Funnily enough, this offset is used by `system` to call a helper function that actually performs the `exec` to the shell. Check the disassembly above if you don't believe it.
+
 And now all we need is some gadgets. Which, come to think of it, we already have. Remember earlier, when we used that `pop rdi` gadget? We can use it again here to get the address of the string into `rdi`.
 
-Some observant readers may have noticed by now that we need to send two payloads, one to leak the address and one to pop our shell, but we only have one opportunity to read in data. How do we get around this? Well, with more ROP of course. We can simply put the address of the program's entry point (most Linux programs use `_start`) at the end of our first payload. This essentially restarts the entire program once the leak finishes without reloading the entire binary, thereby preserving the address of `libc`, and allows us to read in a second payload.
+Some observant readers may have noticed by now that we need to send two payloads, one to leak the address and one to pop our shell, but we only have one opportunity to read in data. How do we get around this? Well, with more ROP of course. We can simply put the address of the program's entry point (most Linux programs use `_start`) at the end of our first payload. This essentially restarts the entire program once the leak finishes without reloading the entire binary, thereby preserving the address of `libc`, and allows us to read in a second payload. If we're reading in data much later in the program, or there are other data reads before this, we can just jump back to the function that does the read where we need to send data (in this case, `pwnme`).
 
 So all that's left is to re-enable ASLR...
 
