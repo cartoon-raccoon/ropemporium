@@ -47,10 +47,10 @@ We need to be able to control two main things:
 
 And we do this by overwriting the stack.
 
-We can do this with [return-oriented programming](https://en.wikipedia.org/wiki/Return-oriented_programming). Essentially, we look for gadgets - small pieces of code that usually end with a `ret` instruction. This takes advantage of how `ret` works: It pops off the stack and into `rip`, and jumps to it. This allows us to chain little bits of code together to run arbitrary code, setting up for us to pop our shell. It works like this:
+We can do this with [return-oriented programming](https://en.wikipedia.org/wiki/Return-oriented_programming). Essentially, we look for gadgets - small pieces of code that usually end with a `ret` instruction. This takes advantage of how `ret` works: It pops the saved instruction pointer off the stack and into `rip`, and jumps to it. By overwriting the stack with addresses of such gadgets, we can to chain little bits of code together to run arbitrary code, setting up for us to pop our shell. It works like this:
 
-1. We overwrite the saved `rip` with the address of a gadget by taking advantage of a buffer overflow.
-2. When `ret` in the gadget is executed, we pop that off the stack and jump to it, executing whatever code before `ret`-ing again.
+1. We overwrite the saved `rip` with the address of a gadget by taking advantage of a stack buffer overflow.
+2. When the current function returns, `ret` is executed, so the overwritten `rip` is popped off the stack and we jump to the gadget, executing whatever code before `ret`-ing again.
 3. If we fed in the address of another gadget before that, we'll pop _that_ off, and execute _that_ gadget, and so on and so forth.
 4. Rinse and repeat until profit.
 
