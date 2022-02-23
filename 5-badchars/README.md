@@ -57,7 +57,7 @@ As we can see, the checking code is implemented in `pwnme`. It iterates over eve
 
 Cool, now we need to figure out how to obfuscate our filename.
 
-A common method used to obfuscate a string is through an XOR stream cipher. In this operation, each character in a string is XORed against a one-byte key. The resulting string of bytes is now no longer valid ASCII, and is undetectable by programs such as `strings` or disassembler programs. Thus, it is useful when one needs to hide hardcoded strings in an executable. However, this operation is easily reversed by XORing the encrpyted stream against the same key. Thus, we can apply the XOR operation on the string before sending it in, and use gadgets to apply the same operation on the string once it's in memory, to get our original string back.
+A common method used to obfuscate a string is through an XOR stream cipher. In this operation, each character in a string is XORed against a one-byte key. The resulting string of bytes is now no longer valid ASCII, and is undetectable by programs such as `strings` or disassembler programs. Thus, it is useful when one needs to hide hardcoded strings in an executable. However, this operation is easily reversed by XORing the encrypted stream against the same key. Thus, we can apply the XOR operation on the string before sending it in, and use gadgets to apply the same operation on the string once it's in memory, to get our original string back.
 
 Now, we just need to find an XOR gadget.
 
@@ -102,7 +102,7 @@ elf = context.binary = ELF("./badchars")
 
 PRINT_FILE = p64(elf.symbols.print_file)
 
-# assign an arbitrary XOR key (this can be anything)
+# assign an arbitrary XOR key (this can be any byte except 0x00)
 XOR_KEY = 0xe5
 
 # xor byte ptr [r15], r14b; ret
