@@ -163,7 +163,7 @@ We also need a place in memory to write to. Last time, we wrote to the `.data` s
 
 ```python
 # don't p64() this so we can do operations on it later
-DATA_ADDR = 0x601028 + 8
+DATA_ADDR = 0x601028
 ```
 
 And we can start constructing our payload:
